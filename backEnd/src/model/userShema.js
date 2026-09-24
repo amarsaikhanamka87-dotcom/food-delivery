@@ -4,7 +4,7 @@ const userSchema = new Schema(
   {
     email: { type: String },
     password: { type: String },
-    phoneNumber: { type: String },
+    phoneNumber: { type: Number },
   },
   {
     timestamps: true,

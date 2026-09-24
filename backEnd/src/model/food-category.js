@@ -11,4 +11,4 @@ const foodSchema = new Schema(
   },
 );
 
-export const Book = mongoose.model("Food", bookSchema);
+export const Food = mongoose.model("Food", foodSchema);

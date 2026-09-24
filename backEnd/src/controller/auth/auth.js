@@ -1,18 +1,38 @@
 import { User } from "../../model/userShema.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-// SIGHUP    ~HASH
+const JWT_SECTET = process.env.JWT_SECTET;
+// //const token = jwt.sign({ email: "amka123" }, JWT_SECTET, {
+//   expiresIn: "7d",
+// });
+
+const publicUser = (user) => {
+  return {
+    email: user.email,
+    role: user.role,
+    _id: user.id,
+  };
+};
+
+const createToken = (user) => {
+  return jwt.sign({ email: user.email }, JWT_SECTET, {
+    expiresIn: "7d",
+  });
+};
+
+// SIGHUP ~HASH
 export const signUpController = async (req, res) => {
-  const { email, password } = req.body;
-  console.log("hello sign controller", email, password);
-
   const SALT_ROUND = 10;
-  const hashedPassword = await bcrypt.hash(password, SALT_ROUND);
-  console.log("hashedPassword", hashedPassword);
+
+  const { email, password } = req.body;
+
+  const token = createToken();
 
   try {
-    await User.create({ email, password: hashedPassword });
-    res.status(200).json({ messange: "Success" });
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUND);
+    const user = await User.create({ email, password: hashedPassword });
+    res.status(200).json({ messange: "Success", user, token: token });
   } catch (err) {
     res.status(500).json({ messange: "fail" });
   }
@@ -20,19 +40,16 @@ export const signUpController = async (req, res) => {
 
 //  LOGIN.  ~COMPARE
 export const loginController = async (req, res) => {
-  console.log("hello login controller", req.body);
-
-  const { password, email } = req.body;
-
-  const user = await User.findOne({ email });
-  console.log("user", user);
-  console.log("userPassword");
-
-  const passMatching = await bcrypt.compare(password, user.password);
-  console.log("passMatching", passMatching);
+  const { password } = req.body;
+  const { user } = req;
 
   try {
-    res.status(200).json({ messange: "Success" });
+    const passMatching = await bcrypt.compare(password, user.password);
+
+    if (!passMatching) {
+      res.status(400).json({ message: "Wrong password" });
+    }
+    res.status(200).json({ messange: "Success loginController", user });
   } catch (err) {
     res.status(500).json({ messange: "FAIL LOGINCONTROLLER" });
   }

@@ -4,5 +4,13 @@ import {
   signUpController,
 } from "../../controller/auth/auth.js";
 
+import {
+  ckeckIfUserExist,
+  requiredPasswordAndEmail,
+  validaidUser,
+} from "../../middleware/auth-middleware.js";
+
 export const authRouter = Router();
-authRouter.post("/signUp", signUpController).post("/login", loginController);
+authRouter
+  .post("/signUp", requiredPasswordAndEmail, ckeckIfUserExist, signUpController)
+  .post("/login", requiredPasswordAndEmail, validaidUser, loginController);
