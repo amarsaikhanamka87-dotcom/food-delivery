@@ -40,8 +40,9 @@ export const signUpController = async (req, res) => {
 
 //  LOGIN.  ~COMPARE
 export const loginController = async (req, res) => {
-  const { password } = req.body;
-  const { user } = req;
+  const { password, email } = req.body;
+  // const { user } = req;
+  const user = User.findOne({ email });
 
   try {
     const passMatching = await bcrypt.compare(password, user.password);
